@@ -45,12 +45,12 @@ while True:
     command_queue = []
 
     direction_order = [Direction.North, Direction.South,
-        Direction.East, Direction.West, Direction.Still]
+                       Direction.East, Direction.West, Direction.Still]
 
     for ship in me.get_ships():
 
         position_options = ship.position.get_surrounding_cardinals() + \
-                                                                   [ship.position]
+            [ship.position]
 
         # {(0, 1) : (12, 38)}
         position_dict = {}
@@ -64,7 +64,7 @@ while True:
         for directon in position_dict:
             position = position_dict[directon]
             halite_amount = game_map[position].halite_amount
-            halite_dict[position] = halite_ammount
+            halite_dict[directon] = halite_amount
 
         # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
         #   Else, collect halite.
