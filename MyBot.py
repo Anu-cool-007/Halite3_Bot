@@ -47,6 +47,8 @@ while True:
     direction_order = [Direction.North, Direction.South,
                        Direction.East, Direction.West, Direction.Still]
 
+    position_choices = []
+
     for ship in me.get_ships():
 
         position_options = ship.position.get_surrounding_cardinals() + \
@@ -64,14 +66,19 @@ while True:
         for directon in position_dict:
             position = position_dict[directon]
             halite_amount = game_map[position].halite_amount
-            halite_dict[directon] = halite_amount
+            if position_dict[directon] not in position_choices:
+                halite_dict[directon] = halite_amount
+            else:
+                logging.info("attempting to move to same spot\n")
 
         # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
         #   Else, collect halite.
         if game_map[ship.position].halite_amount < constants.MAX_HALITE / 10 or ship.is_full:
-            command_queue.append(
-                ship.move(max(halite_dict, key=halite_dict.get)))
+            directional_choice = max(halite_dict, key=halite_dict.get)
+            position_choices.append(position_dict[directional_choice])
+            command_queue.append(ship.move(directional_choice))
         else:
+            position_choices.append(position_dict[Direction.Still])
             command_queue.append(ship.stay_still())
 
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
