@@ -80,6 +80,8 @@ while True:
             move = game_map.naive_navigate(ship, me.shipyard.position)
             position_choices.append(position_dict[move])
             command_queue.append(ship.move(move))
+            if move == Direction.Still:
+                ship_states[ship.id] = "collecting"
 
         elif ship_states[ship.id] == "collecting":
             # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
