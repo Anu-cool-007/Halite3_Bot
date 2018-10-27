@@ -44,13 +44,33 @@ while True:
     #   end of the turn.
     command_queue = []
 
+    direction_order = [Direction.North, Direction.South,
+        Direction.East, Direction.West, Direction.Still]
+
     for ship in me.get_ships():
+
+        position_options = ship.position.get_surrounding_cardinals() + \
+                                                                   [ship.position]
+
+        # {(0, 1) : (12, 38)}
+        position_dict = {}
+
+        # {(0, 1) : 500}
+        halite_dict = {}
+
+        for n, directon in enumerate(direction_order):
+            position_dict[directon] = position_options[n]
+
+        for directon in position_dict:
+            position = position_dict[directon]
+            halite_amount = game_map[position].halite_amount
+            halite_dict[position] = halite_ammount
+
         # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
         #   Else, collect halite.
         if game_map[ship.position].halite_amount < constants.MAX_HALITE / 10 or ship.is_full:
             command_queue.append(
-                ship.move(
-                    random.choice([ Direction.North, Direction.South, Direction.East, Direction.West ])))
+                ship.move(max(halite_dict, key=halite_dict.get)))
         else:
             command_queue.append(ship.stay_still())
 
@@ -61,4 +81,3 @@ while True:
 
     # Send your moves back to the game environment, ending this turn.
     game.end_turn(command_queue)
-
