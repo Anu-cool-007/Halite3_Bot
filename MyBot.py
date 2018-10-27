@@ -72,7 +72,10 @@ while True:
             position = position_dict[directon]
             halite_amount = game_map[position].halite_amount
             if position_dict[directon] not in position_choices:
-                halite_dict[directon] = halite_amount
+                if directon == Direction.Still:
+                    halite_dict[directon] = halite_amount * 3
+                else:
+                    halite_dict[directon] = halite_amount
             else:
                 logging.info("attempting to move to same spot\n")
 
@@ -91,7 +94,7 @@ while True:
             command_queue.append(ship.move(game_map.naive_navigate(
                 ship, position_dict[directional_choice])))
 
-            if ship.halite_amount > constants.MAX_HALITE / 3:
+            if ship.halite_amount > constants.MAX_HALITE * .95:
                 ship_states[ship.id] = "depositing"
 
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
