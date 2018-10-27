@@ -32,6 +32,8 @@ logging.info("Successfully created bot! My Player ID is {}.".format(game.my_id))
 
 """ <<<Game Loop>>> """
 
+ship_states = {}
+
 while True:
     # This loop handles each turn of the game. The game object changes every turn, and you refresh that state by
     #   running update_frame().
@@ -50,6 +52,9 @@ while True:
     position_choices = []
 
     for ship in me.get_ships():
+
+        if ship.id not in ship_states:
+            ship_states[ship.id] = "collecting"
 
         position_options = ship.position.get_surrounding_cardinals() + \
             [ship.position]
@@ -71,15 +76,21 @@ while True:
             else:
                 logging.info("attempting to move to same spot\n")
 
-        # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
-        #   Else, collect halite.
-        if game_map[ship.position].halite_amount < constants.MAX_HALITE / 10 or ship.is_full:
+        if ship_states[ship.id] == "depositing":
+            move = game_map.naive_navigate(ship, me.shipyard.position)
+            position_choices.append(position_dict[move])
+            command_queue.append(ship.move(move))
+
+        elif ship_states[ship.id] == "collecting":
+            # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
+            #   Else, collect halite.
             directional_choice = max(halite_dict, key=halite_dict.get)
             position_choices.append(position_dict[directional_choice])
-            command_queue.append(ship.move(directional_choice))
-        else:
-            position_choices.append(position_dict[Direction.Still])
-            command_queue.append(ship.stay_still())
+            command_queue.append(ship.move(game_map.naive_navigate(
+                ship, position_dict[directional_choice])))
+
+            if ship.halite_amount > constants.MAX_HALITE / 3:
+                ship_states[ship.id] = "depositing"
 
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
